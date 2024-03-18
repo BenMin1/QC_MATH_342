@@ -1,0 +1,210 @@
+\documentclass[12pt]{article}
+
+\include{preamble}
+
+\newtoggle{professormode}
+%\toggletrue{professormode} %STUDENTS: DELETE or COMMENT this line
+
+
+
+\title{MATH 342W / 650.4 Spring \the\year ~Homework \#3}
+
+\author{Benjamin Minkin} %STUDENTS: write your name here
+
+\iftoggle{professormode}{
+\date{Due 11:59PM March 17 \\ \vspace{0.5cm} \small (this document last updated \currenttime~on \today)}
+}
+
+\renewcommand{\abstractname}{Instructions and Philosophy}
+
+\begin{document}
+\maketitle
+
+\iftoggle{professormode}{
+\begin{abstract}
+The path to success in this class is to do many problems. Unlike other courses, exclusively doing reading(s) will not help. Coming to lecture is akin to watching workout videos; thinking about and solving problems on your own is the actual ``working out.''  Feel free to \qu{work out} with others; \textbf{I want you to work on this in groups.}
+
+Reading is still \textit{required}. You should be googling and reading about all the concepts introduced in class online. This is your responsibility to supplement in-class with your own readings.
+
+The problems below are color coded: \ingreen{green} problems are considered \textit{easy} and marked \qu{[easy]}; \inorange{yellow} problems are considered \textit{intermediate} and marked \qu{[harder]}, \inred{red} problems are considered \textit{difficult} and marked \qu{[difficult]} and \inpurple{purple} problems are extra credit. The \textit{easy} problems are intended to be ``giveaways'' if you went to class. Do as much as you can of the others; I expect you to at least attempt the \textit{difficult} problems. 
+
+This homework is worth 100 points but the point distribution will not be determined until after the due date. See syllabus for the policy on late homework.
+
+Up to 7 points are given as a bonus if the homework is typed using \LaTeX. Links to instaling \LaTeX~and program for compiling \LaTeX~is found on the syllabus. You are encouraged to use \url{overleaf.com}. If you are handing in homework this way, read the comments in the code; there are two lines to comment out and you should replace my name with yours and write your section. The easiest way to use overleaf is to copy the raw text from hwxx.tex and preamble.tex into two new overleaf tex files with the same name. If you are asked to make drawings, you can take a picture of your handwritten drawing and insert them as figures or leave space using the \qu{$\backslash$vspace} command and draw them in after printing or attach them stapled.
+
+The document is available with spaces for you to write your answers. If not using \LaTeX, print this document and write in your answers. I do not accept homeworks which are \textit{not} on this printout. Keep this first page printed for your records.
+
+\end{abstract}
+
+\thispagestyle{empty}
+\vspace{1cm}
+NAME: \line(1,0){380}
+\clearpage
+}
+
+\problem{These are questions about Silver's book, chapters 3-6.  For all parts in this question, answer using notation from class (i.e. $t ,f, g, h^*, \delta, \epsilon, e, t, z_1, \ldots, z_t, \mathbb{D}, \mathcal{H}, \mathcal{A}, \mathcal{X}, \mathcal{Y}, X, y, n, p, x_{\cdot 1}, \ldots, x_{\cdot p}$, $x_{1 \cdot}, \ldots, x_{n \cdot}$, etc.} % and also we now have $f_{pr}, h^*_{pr}, g_{pr}, p_{th}$, etc from probabilistic classification as well as different types of validation schemes)
+
+\begin{enumerate}
+
+\hardsubproblem{Chapter 4 is all about predicting weather. Broadly speaking, what is the problem with weather predictions? Make sure you use the framework and notation from class. This is not an easy question and we will discuss in class. Do your best.}\spc{6}
+
+Weather is a dynamic system where small errors in measurement can cause devastating effects in prediction. The problem with predicting weather is getting the very precise measurements throughout the predicting process. 
+
+\easysubproblem{Why does the weatherman lie about the chance of rain? And where should you go if you want honest forecasts?}\spc{2}
+
+Weathermen lie because errors in one direction are treated more harshly. Predicting rain before clear skies goes unadmonished whereas predicting clear skies before rain causes mistrust. This leads them to have a bias in favor of predicting rain. To get an accurate prediction go to the government website weather.gov instead of weather.com. 
+
+\hardsubproblem{Chapter 5 is all about predicting earthquakes. Broadly speaking, what is the problem with earthquake predictions? It is \textit{not} the same as the problem of predicting weather. Read page 162 a few times. Make sure you use the framework and notation from class.}\spc{5}
+
+Predicting earthquakes is different than weather because we do not understand the underlying causes behind earthquakes. It is hard to predict reality when there is no model predicting when earthquakes arrive. 
+
+\easysubproblem{Silver has quite a whimsical explanation of overfitting on page 163 but it is really educational! What is the nonsense predictor in the model he describes?}\spc{2}
+
+A predictor that predicts the combination of the lock based on its color that was trained from a dataset containing two locks. 
+
+\easysubproblem{John von Neumann was credited with saying that \qu{with four parameters I can fit an elephant and with five I can make him wiggle his trunk}. What did he mean by that and what is the message to you, the budding data scientist? }\spc{5}
+
+Overfitting can cause the model to match the data very closely. What I take from this quote is to focus on creating models using relevant variables instead of trying to maximize the $R^2$.
+
+\hardsubproblem{Chapter 6 is all about predicting unemployment, an index of macroeconomic performance of a country. Broadly speaking, what is the problem with unemployment predictions? It is \textit{not} the same as the problem of predicting weather or earthquakes. Make sure you use the framework and notation from class.}\spc{6}
+
+Sometimes, politicians focus on minimizing unemployment. This can lead unemployment to go down faster than expected. This human intervention makes the unemployment metric to be a bad predictor on macroeconomic performance. 
+
+
+\extracreditsubproblem{Many times in this chapter Silver says something on the order of \qu{you need to have theories about how things function in order to make good predictions.} Do you agree? Discuss.}\spc{13}
+
+I mostly agree with this, Choosing good proxies is key to creating a good model. 
+\end{enumerate}
+
+
+
+\problem{These are questions related to the concept of orthogonal projection, QR decomposition and its relationship with least squares linear modeling.}
+
+\begin{enumerate}
+
+\easysubproblem{Let $\H$ be the orthogonal projection onto $\colsp{\X}$ where $\X$ is a $n \times (p+1)$ matrix with all columns linearly independent from each other. What is $\rank{\H}$?}\spc{0.5}
+
+(p+1)
+
+\easysubproblem{Simplify $\H\X$ by substituting for $\H$.}\spc{0.5}
+
+$$H = X(X^T X)^{-1} X^T$$
+$$HX = X(X^T X)^{-1} X^T X = X I = X$$
+
+\intermediatesubproblem{What does your answer from the previous question mean conceptually?}\spc{2}
+
+A projection onto itself or a bigger space is itself. 
+
+\hardsubproblem{Let $\X'$ be the matrix of $\X$ whose columns are in reverse order meaning that $\X = [ \onevec_n~\vdots~\x_{\cdot 1}~\vdots~ \ldots~\vdots~ \x_{\cdot p} ]$ and $\X' = [\x_{\cdot p}~\vdots~ \ldots~\vdots~\x_{\cdot 1}~\vdots~\onevec_n]$. Show that the projection matrix that projects onto $\colsp{X}$ is the same exact projection matrix that projects onto $\colsp{X'}$.}\spc{4}
+
+$$H =  X(X^T X)^{-1} X^T$$
+$$H^` = X^`(X^{T`} X^`)^{-1} X^{T`}$$
+because x is parallel to x`, they will have the same projection matrix as magnitude is irrelevant. 
+
+\hardsubproblem{[MA] Generalize the previous problem by proving that orthogonal projection matrices that project onto any specific subspace are \emph{unique}.}\spc{10}
+
+\hardsubproblem{[MA] Prove that if a square matrix is both symmetric and idempotent then it must be an orthogonal projection matrix.}\spc{10}
+
+
+
+\easysubproblem{Prove that $I_n$ is an orthogonal projection matrix $\forall n$.}\spc{3}
+
+Idempotency
+$$II = I$$
+Symmetric
+$$I^T = I$$
+
+\easysubproblem{What subspace does $I_n$ project onto?}\spc{3}
+
+Beacause I is full rank it will project onto $\mathbb{R}^n$ space
+
+\easysubproblem{Consider least squares linear regression using a design matrix $X$ with rank $p + 1$. What are the degrees of freedom in the resulting model? What does this mean?}\spc{3}
+
+There are P degrees of freedom because a P+1 design matrix will return an $r^2$ of 1 because each y has an x to account for it. This is absolute overfitting and will be bad at prediction.  
+
+\easysubproblem{If you are orthogonally projecting the vector $\y$ onto the column space of $X$ which is of rank $p + 1$, derive the formula for $\proj{\colsp{X}}{\y}$. Is this the same as in OLS?}\spc{8}
+
+$$\proj{\colsp{X}}{\y} =  X(X^T X)^{-1} X^T y$$
+$$OLS = (X^T X)^{-1} X^T y$$
+This is the same as OLS except that here there is an X in front. 
+    
+\hardsubproblem{We saw that the perceptron is an \textit{iterative algorithm}. This means that it goes through multiple iterations in order to converge to a closer and closer $\bv{w}$. Why not do the same with linear least squares regression? Consider the following. Regress $\y$ using $\X$ to get $\yhat$. This generates residuals $\e$ (the leftover piece of $\y$ that wasn't explained by the regression's fit, $\yhat$). Now try again! Regress $\e$ using $\X$ and then get new residuals $\e_{new}$. Would $\e_{new}$ be closer to $\bv{0}_n$ than the first $\e$? That is, wouldn't this yield a better model on iteration \#2? Yes/no and explain.}\spc{10}
+
+No it will not work. This is because e does not intersect and does not contain any more information. Regression again will not be any better than the first regression so it is not an iterative process. 
+
+\intermediatesubproblem{Prove that $\Q^\top = \Q^{-1}$ where $\Q$ is an orthonormal matrix such that $\colsp{\Q} = \colsp{\X}$ and $\Q$ and $\X$ are both matrices $\in \reals^{n \times (p+1)}$ and $n = p+1$ in this case to ensure the inverse is defined. Hint: this is purely a linear algebra exercise and it's a one-liner.}\spc{2}
+
+$$Q^TQ = Q^{-1}Q \rightarrow I = I$$
+
+\easysubproblem{Prove that the least squares projection $\H = \XXtXinvXt = \Q\Q^\top$. Justify each step.}\spc{3}
+
+Normalize each row 
+$$\XXtXinvXt$$
+$$= \frac{1}{||X||} *  ||X^TX||* \frac{1}{||X^T||} * V(V^TV)^{-1}V^T$$
+$$= V(V^TV)^{-1}V^T= H = QQ^T$$
+
+\hardsubproblem{[MA] This problem is independent of the others. Let $H$ be an orthogonal projection matrix. Prove that $\rank{\H} =\tr{\H}$. Hint: you will need to use facts about eigenvalues and the eigendecomposition of projection matrices.}\spc{12}
+
+\intermediatesubproblem{Prove that an orthogonal projection onto the $\colsp{\Q}$ is the same as the sum of the projections onto each column of $\Q$.}\spc{9}
+
+Due to being orthogonal each column is in an independent space and has no overlap. This means that the sum of the column projections is equivalent to the whole projection at once. 
+
+\easysubproblem{Explain why adding a new column to $\X$ results in no change in the SST remaining the same.}\spc{1}
+
+$$SST = \sum{y_i - \ybar}^2$$
+Adding to x will not affect this. 
+
+\intermediatesubproblem{Prove that adding a new column to $\X$ results in SSR increasing.}\spc{4}
+
+$$\sum_{j=1}^p ||proj_j(y^>)||^2$$
+As you add columns, the column space increases which increases the amount projected raising SSR
+
+
+\intermediatesubproblem{What is overfitting? Use what you learned in this problem to frame your answer.}\spc{4}
+
+Adding more columns will always raise SSR even when it is garbage. This means that you can add garbage to increase the $R^2$ fit of your model. However, this is misleading becauseb it is resulting from garbage in. This is overfitting. 
+
+\easysubproblem{Why are \qu{in-sample} error metrics (e.g. $R^2$, SSE, $s_e$) dishonest? Note: I'm leaving out RMSE as RMSE attempts to be honest by increasing as $p$ increases due to the denominator. I've chosen to use standard error of the residuals as the error metric of choice going forward.}\spc{5}
+
+
+Adding more columns will always raise SSR even when it is garbage. This means that you can add garbage to increase the $R^2$ fit of your model. However, this is misleading becauseb it is resulting from garbage in. This is overfitting. 
+
+\easysubproblem{How can we provide honest error metrics (e.g. $R^2$, SSE, $s_e$)? It may help to draw a picture of the procedure.}\spc{14}
+
+To help, you can partition the data into two categories. One will be the training data and the other will be the validation data. This will help with understanding the underlying relationships instead of focusing on fitting the sample data. 
+
+
+\easysubproblem{The procedure in (t) produces highly variable honest error metrics. Can you change the procedure slightly to reduce the variation in the honest error metrics? What is this procedure called and how is it done?}\spc{6}
+
+
+
+
+\end{enumerate}
+
+
+\problem{These are some questions related to validation.}
+
+\begin{enumerate}
+
+\easysubproblem{Assume you are doing one train-test split where you build the model on the training set and validate on the test set. What does the constant $K$ control? And what is its tradeoff?}\spc{4}
+
+K is the amount of training sets partitioned from the data. Here K=1 because there is one training set. 
+
+\intermediatesubproblem{Assume you are doing one train-test split where you build the model on the training set and validate on the test set. If $n$ was very large so that there would be trivial misspecification error even when using $K=2$, would there be any benefit at all to increasing $K$ if your objective was to estimate generalization error? Explain.}\spc{4}
+
+There would be some benefit to increasing K. It would reduce the variance of the predictions from the model. 
+
+\easysubproblem{What problem does $K$-fold CV try to solve?}\spc{3}
+
+It tries to solve the issue of training on all of the data while having a way to validate without causing overfitting. Without $K$-fold CV, the training data would also be used to validate the data leading to possible overfitting. $K$-fold CV also outputs a prediction with less variance. 
+
+\hardsubproblem{[MA] Theoretically, how does $K$-fold CV solve this problem? The Internet is your friend.}\spc{5}
+
+
+\end{enumerate}
+
+
+\end{document}
+
+
+
