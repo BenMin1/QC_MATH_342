@@ -1,0 +1,288 @@
+---
+title: "Math 342w Lab 6"
+author: "Benjamin Minkin"
+output: pdf_document
+---
+
+
+#Visualization with the package ggplot2
+
+I highly recommend using the [ggplot cheat sheet](https://rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf) as a reference resource. You will see questions that say "Create the best-looking plot". Among other things you may choose to do, remember to label the axes using real English, provide a title and subtitle. You may want to pick a theme and color scheme that you like and keep that constant throughout this lab. The default is fine if you are running short of time.
+
+Load up the `GSSvocab` dataset in package `carData` as `X` and drop all observations with missing measurements. This will be a very hard visualization exercise since there is not a good model for vocab.
+
+```{r}
+pacman::p_load(carData)
+
+X = carData::GSSvocab
+X = na.omit(X)
+
+skimr::skim(X)
+```
+
+Briefly summarize the documentation on this dataset. What is the data type of each variable? What do you think is the response variable the collectors of this data had in mind?
+
+Year is ordinal from 1978 to 2016. Gender is binary m/f. Native born is a dummy y/n. Age group is ordinal with 20s 30s 40s 50s 60+. Education group is ordinal. Vocab is continuous 0-10, age is continuous, and education is continuous. 
+
+Create two different plots and identify the best-looking plot you can to examine the `age` variable. Save the best looking plot as an appropriately-named PDF.
+
+```{r}
+pacman::p_load(ggplot2)
+plot_age = ggplot(X) + aes(age)
+plot_age + geom_histogram()
+
+plot_age + geom_density()
+```
+
+Create two different plots and identify the best looking plot you can to examine the `vocab` variable. Save the best looking plot as an appropriately-named PDF.
+
+```{r}
+#plot_vocab = ggplot(X) + aes(vocab)
+#plot_vocab + geom_histogram(col = 'black', fill = 'darkred')
+X$vocab_factor = factor(X$vocab) 
+
+plot_vocab_factor = ggplot(X) + aes(X$vocab_factor)
+plot_vocab_factor + geom_bar(col = 'black', fill = 'darkred')
+
+```
+
+Create the best-looking plot you can to examine the `ageGroup` variable by `gender`. Does there appear to be an association? There are many ways to do this.
+
+```{r}
+z=X$gender
+ggplot(X) + aes(ageGroup, color = gender, fill = gender) + geom_bar() + facet_grid(z)
+```
+
+Create the best-looking plot you can to examine the `vocab` variable by `age`. Does there appear to be an association?
+
+```{r}
+ggplot(X) + aes(x=age, y=vocab_factor) + geom_boxplot()
+```
+
+Add an estimate of $f(x)$ using the smoothing geometry to the previous plot. Does there appear to be an association now?
+
+```{r}
+ggplot(X) + aes(x=age, y=vocab) + geom_point() + geom_smooth()
+```
+
+Using the plot from the previous question, create the best looking plot overloading with variable `gender`. Does there appear to be an interaction of `gender` and `age`?
+
+```{r}
+ggplot(X) + aes(x=age, y=vocab, color = gender) + geom_smooth()
+```
+
+
+Using the plot from the previous question, create the best looking plot overloading with variable `nativeBorn`. Does there appear to be an interaction of `nativeBorn` and `age`?
+
+```{r}
+ggplot(X) + aes(x=age, y=vocab, color = nativeBorn) + geom_smooth()
+```
+
+Create two different plots and identify the best-looking plot you can to examine the `vocab` variable by `educGroup`. Does there appear to be an association?
+
+```{r}
+ggplot(X) + aes(x = educGroup, y = vocab) + geom_boxplot()
+```
+
+Using the best-looking plot from the previous question, create the best looking overloading with variable `gender`. Does there appear to be an interaction of `gender` and `educGroup`? NO
+
+```{r}
+ggplot(X) + aes(x = educGroup, y = gender) + geom_boxplot()
+```
+
+Using facets, examine the relationship between `vocab` and `ageGroup`. You can drop year level `(Other)`. Are we getting dumber?
+
+```{r}
+#TO-DO
+```
+
+
+#Logistic Regression
+
+Let's consider the Pima Indians Diabetes dataset from 1988:
+
+```{r}
+?MASS::Pima.tr2
+pima = na.omit(MASS::Pima.tr2)
+skimr::skim(pima)
+y = ifelse(MASS::Pima.tr2$type == "Yes", 1, 0)
+X = cbind(1, MASS::Pima.tr2[, 1 : 7])
+```
+
+Note the missing data. We will learn about how to handle missing data towards the end of the course. For now, replace, the missing data in the design matrix X with the average of the feature x_dot,j. You can check that this worked with the table commands at the end of the chunk:
+
+```{r}
+table(X$bp, useNA = "always")
+table(X$skin, useNA = "always")
+table(X$bmi, useNA = "always")
+```
+
+Now let's fit a log-odds linear model of y=1 (type is "diabetic") on just the `glu` variable. Use `optim` to fit the model.
+
+```{r}
+x = pima$glu
+#w_0 = 1
+#w_1 = -1
+#prod((1+exp(-w_0-w_1*x))^(-y)*(1+exp(-w_0-w_1*x))^(y-1))
+log_logis_prob = function(w){
+  -sum(-y*log(1+exp(-w[1]-w[2]*x)) - (1-y) * log(1+exp(w[1]+w[2]*x)))
+}
+optim(c(0,0), log_logis_prob)$par
+```
+
+Masters students: write a `fit_logistic_regression` function which takes in X, y and returns b which uses the optimization routine.
+
+```{r}
+fit_logistic_regression = function(X, y){
+  b = #TO-DO
+  b
+}
+```
+
+Run a logistic regression of y=1 (type is "diabetic") on just the `glu` variable using R's built-in function and report b_0, b_1.
+
+```{r}
+coef(glm(y ~ X[, "glu"], family = "binomial"))
+```
+
+Comment on how close the results from R's built-in function was and your optimization call.
+
+I was off by around two which is around 60% error. 
+
+Interpret the value of b_1 from R's built-in function.
+
+A one unit increase in x results in a 0.04 increase in log odds of having diabetes. 
+
+Interpret the value of b_0 from R's built-in function.
+
+A person with 0 glucose has negative probability of having diabetes. 
+
+Plot the probability of y=1 from the minimum value of `glu` to the maximum value of `glu`.
+
+```{r}
+min(x)
+max(x)
+res = .1
+x_stars = seq(from = min(x), to = max(x), by = res)
+log_odds_hat = cbind(1, x_stars)%*%b
+p_hat = 1 / (1+exp(-log_odds_hat))
+ggplot(data.frame(glucose = x_stars, pred_prob_diab = p_hat))+
+aes(x = glocose, y = pred_prob_diab)+
+geom_line()
+```
+
+Run a logistic regression of y=1 (type is "diabetic") on all variables using R's built-in function and report the b vector.
+
+```{r}
+mod1 = coef(glm(y ~ X[, "glu"], family = "binomial"))
+```
+Predict the probability of diabetes for someone with a blood sugar of 150.
+
+```{r}
+#e^0.3315 = 1.4 %
+```
+
+For 100 people with blood sugar of 150, what is the probability more than 75 of them have diabetes? (You may need to review 241 to do this problem).
+
+```{r}
+dbinom(100, 0.014, 75)
+0
+```
+
+Plot the in-sample log-odds predictions (y-axis) versus the real response values (x-axis).
+
+```{r}
+p_hat = glm(y ~ X[, "glu"], family = "binomial")$fitted.values
+log_odds_hat = log(p_hat / (1-p_hat))
+
+ggplot(data.frame(p_hat=p_hat, has_diabetes = y))+
+  aes(x=has_diabetes, y=p_hat)+
+  geom_boxplot()
+```
+
+Plot the in-sample probability predictions (y-axis) versus the real response values (x-axis).
+
+```{r}
+ggplot(data.frame(log_odds_hat = log_odds_hat, has_diabetes = y))+
+  aes(x=has_diabetes, y=log_odds_hat)+
+  geom_boxplot()
+```
+
+Comment on how well you think the logistic regression performed in-sample.
+
+I think it performed well in sample. I do not think that will hold out of sample however. 
+Calculate the in-sample Brier score.
+
+```{r}
+mean((y-p_hat)^2)
+```
+
+Calculate the in-sample log-scoring rule.
+
+```{r}
+mean(-log(y[y==1]) - log(1-p_hat[y==0]))
+```
+
+
+Run a probit regression of y=1 (type is "diabetic") on all variables using R's built-in function and report the b vector.
+
+
+```{r}
+my_data = cbind(MASS::Pima.tr2)
+coef(glm(type ~ age + ped + bmi + skin + bp + glu + npreg, data = my_data, family = "binomial"(link = "probit")))
+
+```
+
+Does the weight estimates here in the probit fit have different signs than the weight estimates in the logistic fit? What does that mean?
+
+No. It means that the two methods are similar. 
+
+Plot the in-sample probability predictions (y-axis) versus the real response values (x-axis).
+
+```{r}
+y_hat = predict(glm(type ~ age + ped + bmi + skin + bp + glu + npreg, data = my_data, family = "binomial"(link = "probit")), type = "response")
+
+```
+
+Calculate the in-sample Brier score.
+
+```{r}
+mean((y-y_hat)^2)
+```
+
+Calculate the in-sample log-scoring rule.
+
+```{r}
+mean(-log(y[y==1]) - log(1-y_hat[y==0]))
+```
+
+Which model did better in-sample?
+
+The logistic model did better in sample. 
+
+Compare both model oos using the Brier score and a test set with 1/3 of the data.
+
+```{r}
+set.seed(1748)
+train_indices = sample(1:nrow(my_data), size = nrow(X) - nrow(X)/3)
+train_data = my_data[train_indices,]
+test_data = my_data[-train_indices,]
+
+
+mod1 = glm(type ~ age + ped + bmi + skin + bp + glu + npreg, 
+                       data = train_data, family = "binomial")
+
+mod2 = glm(type ~ age + ped + bmi + skin + bp + glu + npreg, 
+                    data = train_data, family = "binomial"(link = 'probit'))
+
+mod1_pred = predict(mod1, newdata = test_data, type = "response")
+mod2_pred = predict(mod2, newdata = test_data, type = "response")
+
+mean(na.omit((y-mod1_pred)^2))
+mean(na.omit((y-mod2_pred)^2))
+```
+
+Which model did better oos?
+
+They both did about the same but the probit model did slightly better. 
+
