@@ -1,0 +1,271 @@
+\documentclass[12pt]{article}
+
+\include{preamble}
+
+\newtoggle{professormode}
+%\toggletrue{professormode} %STUDENTS: DELETE or COMMENT this line
+
+
+
+\title{MATH 342W / 642 / RM 742 Spring \the\year~ HW \#5}
+
+\author{Benjamin Minkin} %STUDENTS: write your name here
+
+\iftoggle{professormode}{
+\date{Due 11:59PM May 15 \\ \vspace{0.5cm} \small (this document last updated \currenttime~on \today)}
+}
+
+\renewcommand{\abstractname}{Instructions and Philosophy}
+
+\begin{document}
+\maketitle
+
+\iftoggle{professormode}{
+\begin{abstract}
+The path to success in this class is to do many problems. Unlike other courses, exclusively doing reading(s) will not help. Coming to lecture is akin to watching workout videos; thinking about and solving problems on your own is the actual ``working out.''  Feel free to \qu{work out} with others; \textbf{I want you to work on this in groups.}
+
+Reading is still \textit{required}. You should be googling and reading about all the concepts introduced in class online. This is your responsibility to supplement in-class with your own readings.
+
+The problems below are color coded: \ingreen{green} problems are considered \textit{easy} and marked \qu{[easy]}; \inorange{yellow} problems are considered \textit{intermediate} and marked \qu{[harder]}, \inred{red} problems are considered \textit{difficult} and marked \qu{[difficult]} and \inpurple{purple} problems are extra credit. The \textit{easy} problems are intended to be ``giveaways'' if you went to class. Do as much as you can of the others; I expect you to at least attempt the \textit{difficult} problems. 
+
+This homework is worth 100 points but the point distribution will not be determined until after the due date. See syllabus for the policy on late homework.
+
+Up to 7 points are given as a bonus if the homework is typed using \LaTeX. Links to instaling \LaTeX~and program for compiling \LaTeX~is found on the syllabus. You are encouraged to use \url{overleaf.com}. If you are handing in homework this way, read the comments in the code; there are two lines to comment out and you should replace my name with yours and write your section. The easiest way to use overleaf is to copy the raw text from hwxx.tex and preamble.tex into two new overleaf tex files with the same name. If you are asked to make drawings, you can take a picture of your handwritten drawing and insert them as figures or leave space using the \qu{$\backslash$vspace} command and draw them in after printing or attach them stapled.
+
+The document is available with spaces for you to write your answers. If not using \LaTeX, print this document and write in your answers. I do not accept homeworks which are \textit{not} on this printout. Keep this first page printed for your records.
+
+\end{abstract}
+
+\thispagestyle{empty}
+\vspace{1cm}
+NAME: \line(1,0){380}
+\clearpage
+}
+
+
+
+
+\problem{These are some questions related to probability estimation modeling and asymmetric cost modeling.}
+
+\begin{enumerate}
+\easysubproblem{Why is logistic regression an example of a \qu{generalized linear model} (glm)?}\spc{3}
+
+It is a linear model as the independent variables have a linear relationship with the log-odds of a y=1 being predicted. It is GLM because it uses the logistic CDF as a link function to shrink to sample space between 0 and 1. This is a generalization hence the GLM.
+
+\easysubproblem{What is $\mathcal{H}_{pr}$ for the probability estimation algorithm that employs the linear model in the covariates with logistic link function?}\spc{2}
+
+These are all possible logistic CDF sigmoids. Because the CDF always ranges from 0-1, they are all valid link functions for binary classification models. 
+
+\easysubproblem{If logistic regression predicts 3.1415 for a new $\x_*$, what is the probability estimate that $y=1$ for this $\x_*$?}\spc{2}
+
+ This is equivalent to:
+ $$\frac{1}{1+e^{-3.1415}} = 0.96$$
+
+\intermediatesubproblem{What is $\mathcal{H}_{pr}$ for the probability estimation algorithm that employs the linear model in the covariates with cloglog link function?}\spc{5}
+
+These are all possible Gumbel CDF sigmoids. 
+
+\hardsubproblem{Generalize linear probability estimation to the case where $\mathcal{Y} = \braces{C_1, C_2, C_3}$. Use the logistic link function like in logistic regression. Write down the objective function that you would numerically maximize. This objective function is one that is argmax'd over the parameters (you define what these parameters are --- that is part of the question). 
+
+Once you get the answer you can see how this easily goes to $K > 3$ response categories. The algorithm for general $K$ is known as \qu{multinomial logistic regression}, \qu{polytomous LR}, \qu{multiclass LR}, \qu{softmax regression}, \qu{multinomial logit} (mlogit), the \qu{maximum entropy} (MaxEnt) classifier, and the \qu{conditional maximum entropy model}. You can inflate your resume with lots of jazz by doing this one question!}\spc{12}
+
+\easysubproblem{Graph a canonical ROC and label the axes. In your drawing estimate AUC. Explain very clearly what is measured by the $x$ axis and the $y$ axis.}\spc{7}
+\includegraphics[]{ROC curve.png}
+
+\easysubproblem{Pick one point on your ROC curve from the previous question. Explain a situation why you would employ this model.}\spc{3}
+
+At point (0.1,0.5) the mode is having pretty good accuracy. I would use this in a case where there is symmetric cost to making errors. 
+
+\intermediatesubproblem{Graph a canonical DET curve and label the axes. Explain very clearly what is measured by the $x$ axis and the $y$ axis. Make sure the DET curve's intersections with the axes is correct.}\spc{7}
+
+\includegraphics[]{DET_curve.png}
+
+\easysubproblem{Pick one point on your DET curve from the previous question. Explain a situation why you would employ this model.}\spc{3}
+
+At point (0.4,0.2) I would use this model when there is symmetry in cost between errors. 
+
+\hardsubproblem{[MA] The line of random guessing on the ROC curve is the diagonal line with slope one extending from the origin. What is the corresponding line of random guessing in the DET curve? This is not easy...}\spc{5}
+\end{enumerate}
+
+
+
+\problem{These are some questions related to bias-variance decomposition. Assume the two assumptions from the notes about the random variable model that produces the $\delta$ values, the error due to ignorance.}
+
+\begin{enumerate}
+\easysubproblem{Write down (do not derive) the decomposition of MSE for a given $\x_*$ where $\mathbb{D}$ is assumed fixed but the response associated with $\x_*$ is assumed random.}\spc{1}
+
+$$bias(f(x),g(x))^2$$
+
+\easysubproblem{Write down (do not derive) the decomposition of MSE for a given $\x_*$ where the responses in $\mathbb{D}$ is random but the $\X$ matrix is assumed fixed and the response associated with $\x_*$ is assumed random like previously.}\spc{3}
+
+$$var(g(x)|x) + E[f(x*) - g(x)^2]^2$$
+
+\easysubproblem{Write down (do not derive) the decomposition of MSE for general predictions of a phenomenon where all quantities are considered random.}\spc{3}
+
+$$var(g(x)) + var(f(x) + cov(g(x),f(x))$$
+
+\hardsubproblem{Why is it in (a) there is only a \qu{bias} but no \qu{variance} term? Why did the additional source of randomness in (b) spawn the variance term, a new source of error?}\spc{6}
+
+The randomness in the response add the new variance term. In (a) the variance is 0 because the term is fixed.
+
+\intermediatesubproblem{A high bias / low variance algorithm is underfit or overfit?}\spc{-0.5}
+
+Likely underfit.
+
+\intermediatesubproblem{A low bias / high variance algorithm is underfit or overfit?}\spc{-0.5}
+
+Likely overfit.
+
+\intermediatesubproblem{Explain why bagging reduces MSE for \qu{free} regardless of the algorithm employed.}\spc{6}
+
+Bagging uses averages and randomness to get a better prediction. This is free because it does not require more data for training. 
+
+\intermediatesubproblem{Explain why RF reduces MSE atop bagging $M$ trees and specifically mention the target that it attacks in the MSE decomposition formula and why it's able to reduce that target.}\spc{5}
+
+Random forest method atttacks the variance term in the MSE decomposition. IT uses random subsets of features to lessen the covariance between iterations. This decrease in covariance leads to a decrease in overall variance. 
+
+\hardsubproblem{When can RF lose to bagging $M$ trees? Hint: think hyperparameter choice.}\spc{5}
+
+If the hyperparameters are either too high or too low for the specific data, bagging can do better.
+
+\end{enumerate}
+
+
+
+%\problem{These are some questions related to correlation-causation and interpretation of OLS coefficients.}
+%
+%\begin{enumerate}
+%\easysubproblem{Consider a fitted OLS model for y with features $x_1$, $x_2$, \ldots, $x_p$. Provide the most correct interpretation of the quantity $b_1$ you can.}\spc{6}
+%
+%
+%\easysubproblem{If $x$ and $y$ are correlated but their relationship isn't causal, draw a diagram below that includes $z$.}\spc{6}
+%
+%\easysubproblem{To show that $x$ is causal for $y$, what specifically has to be demonstrated? Answer with a couple of sentences.}\spc{4}
+%
+%\intermediatesubproblem{If we fit a model for y using $x_1$, $x_2$, \ldots, $x_7$, provide an example real-world illustration of the causal diagram for $y$ including the $z_1$, $z_2$, $z_3$.}\spc{5}
+%
+%
+%\end{enumerate}
+%
+%
+\problem{These are some questions related to missingness.}
+
+\begin{enumerate}
+\easysubproblem{[MA] What are the three missing data mechanisms? Provide an example when each occurs (i.e., a real world situation). We didn't really cover this in class so I'm making it a MA question only. This concept will NOT be on the exam.}\spc{4}
+
+\easysubproblem{Why is listwise-deletion a \textit{terrible} idea to employ in your $\mathbb{D}$ when doing supervised learning?}\spc{3}
+
+This is because it deletes large amounts of data. If there is an underlying reason for missingness, this can introduce serious bias to the model. 
+
+\easysubproblem{Why is it good practice to augment $\mathbb{D}$ to include missingness dummies? In other words, why would this increase oos predictive accuracy?}\spc{4}
+
+This makes it possible to take missingness into account as a variable. If there is a reason for the missing entries this will try to adjust for that. 
+
+\easysubproblem{To impute missing values in $\mathbb{D}$, what is a good default strategy and why?}\spc{5}
+
+A good strategy is to use the average of that feature. This is the best guess for what it could have been. 
+
+\end{enumerate}
+%
+%\problem{These are some questions related to lasso, ridge and the elastic net.}
+%
+%\begin{enumerate}
+%\easysubproblem{Write down the objective function to be minimized for ridge. Use $\lambda$ as the hyperparameter.}\spc{2}
+%
+%\easysubproblem{Write down the objective function to be minimized for lasso. Use $\lambda$ as the hyperparameter.}\spc{3}
+%
+%\easysubproblem{We spoke in class about when ridge and lasso are employed. Based on this discussion, why should we restrict $\lambda > 0$?}\spc{3}
+%
+%\intermediatesubproblem{Why is lasso sometimes used a preprocessing step to remove variables that likely are not important in predicting the response?}\spc{3}
+%
+%
+%\easysubproblem{Assume $\X$ is orthonormal. One can derive $\b_{\text{lasso}}$ in closed form. Copy the answer from the wikipedia page. Compare $\b_{\text{lasso}}$ to $\b_{\text{OLS}}$.}\spc{8}
+%
+%\intermediatesubproblem{Write down the objective function to be minimized for the elastic net. Use $\alpha$ and $\lambda$ as the hyperparameters.}\spc{3}
+%
+%\easysubproblem{We spoke in class about the concept of the elastic net. Based on this discussion, why should we restrict $\alpha \in (0, 1)$?}\spc{3}
+%
+%\end{enumerate}
+
+\problem{These are some questions related to gradient boosting. The final gradient boosted model after $M$ iterations is denoted $G_M$ which can be written in a number of equivalent ways (see below). The $g_t$'s denote constituent models and the $G_t$'s denote partial sums of the constituent models up to iteration number $t$. The constituent models are \qu{steps in functional steps} which have a step size $\eta$ and a direction component denoted $\tilde{g}_t$. The directional component is the base learner $\mathcal{A}$ fit to the negative gradient of the objective function $L$ which measures how close the current predictions are to the real values of the responses:
+
+\beqn
+G_M &=& G_{M-1} + g_M \\
+&=& g_0 + g_1 + \ldots + g_M \\
+&=& g_0 + \eta \tilde{g}_1 + \ldots + \eta \tilde{g}_M \\
+&=& g_0 + \eta \mathcal{A}\parens{\left<\X, -\nabla L(\y, \yhat_1)\right>, \mathcal{H}} + \ldots + \eta \mathcal{A}\parens{\left<\X, -\nabla L(\y, \yhat_M)\right>, \mathcal{H}} \\
+&=& g_0 + \eta \mathcal{A}\parens{\left<\X, -\nabla L(\y, g_1(\X))\right>, \mathcal{H}} + \ldots + \eta \mathcal{A}\parens{\left<\X, -\nabla L(\y, g_M(\X))\right>, \mathcal{H}} 
+\eeqn}
+
+\begin{enumerate}
+\easysubproblem{From a perspective of only multivariable calculus, explain gradient descent and why it's a good idea to find the minimum inputs for an objective function $L$ (in English).}\spc{2.5}
+
+The gradient is used to find the most steep angle either up or down. Gradient descent is an algorithm that uses that information to iteratively move towards a local maximum or minimum. This will be used to be to find the best inputs for the model a.k.a. the local maximum of the objective function. 
+
+\easysubproblem{Write the mathematical steps of gradient boosting for supervised learning below. Use $L$ for the objective function to keep the procedure general. Use notation found in the problem header. 
+}\spc{8}
+
+1. Choose a random starting point.
+\\2. Calculate the gradient at that point
+\\3. Use a  $\mathcal{A}$ as a base learner
+\\4. Take a step of size $\eta$ towards the local max
+\\5. Update the model
+\\6. Repeat steps 2-5 M times
+
+\easysubproblem{For regression, what is $g_0(\x)$?}\spc{1}
+
+That is the initial model. In this case it is a random starting point. An educated $g_0(\x)$ is a degenerate function that yields the mean of the responses.
+
+\easysubproblem{For probability estimation for binary response, what is $g_0(\x)$?}\spc{1}
+
+An educated $g_0(\x)$ for binary response is the mode of the responses. 
+
+\intermediatesubproblem{What are all the hyperparameters of gradient boosting? There are more than just two.}\spc{3}
+
+1. Base learner selection
+\\2. Size of step taken
+\\3. Size of M times to iterate
+\\4. How many times to run the gradient boosting algorithm to infer towards the absolute max from local maxes. 
+
+\easysubproblem{For regression, rederive the negative gradient of the objective function $L$.}\spc{2}
+
+\easysubproblem{For probability estimation for binary response, rederive the negative gradient of the objective function $L$.}\spc{12}
+
+\hardsubproblem{For probability estimation for binary response scenarios, what is the unit of the output $G_M(\x_\star)$?}\spc{2}
+The output will be the probability that the output is 1 given the selected inputs. 
+
+\easysubproblem{For the base learner algorithm $\mathcal{A}$, why is it a good idea to use shallow CART (which is the recommended default)?}\spc{2}
+
+This is because shallow CART is a weak learner. This counter balances the overfitting that can occur using a deeper CART. 
+
+\hardsubproblem{For the base learner algorithm $\mathcal{A}$, why is it a bad idea to use deep CART?}\spc{2}
+
+This may cause overfitting. Deep trees paired with random forests and used as an ensamble model will be focusing on the training data very closely. Using shallow tree can somewhat counteract this.  
+
+\hardsubproblem{For the base learner algorithm $\mathcal{A}$, why is it a bad idea to use OLS for regression (or logistic regression for probability estimation for binary response)?}\spc{2}
+
+OLS may not be the best choice as it is not a weak learner per-se. This can cause overfitting as mentioned above.
+
+\hardsubproblem{If $M$ is very, very large, what is the risk in using gradient boosting even using shallow CART as the base learner (the recommended default)?}\spc{2}
+
+There are three main ways to induce overfitting.
+\\1. The random forest has too many trees
+\\2. The trees are too deep
+\\3. The process is repeated too many times
+
+\hardsubproblem{If $\eta$ is very, very large but $M$ reasonably correctly chosen, what is the risk in using gradient boosting even using shallow CART as the base learner (the recommended default)?}\spc{2}
+
+If the steps taken are too large, it can over shoot the local maximum. This could cause a jump from valley to valley skipping over the hill entirely. 
+
+\end{enumerate}
+
+
+
+
+\end{document}
+
+
+
+
+
+
