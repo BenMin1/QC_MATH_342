@@ -1,0 +1,245 @@
+---
+title: "Predicting Housing Costs in Queens, NY"
+subtitle: "Final project for Math 342w Queens College"
+format: html
+editor: visual
+author: "Benjamin Minkin"
+date: "5/26/2024"
+output: FALSE
+---
+
+Data Wrangling
+
+Import the csv file
+
+{r}
+library("randomForest")
+library("YARF")
+library("fastDummies")
+library("stargazer")
+library("dplyr")
+library("stringr")
+set.seed = (123)
+
+#import the data
+housing_data = read.csv("C:\\Users\\benmi\\OneDrive\\Desktop\\Math 342w\\housing_data_2016_2017.csv")
+
+Separate out the desired features for prediction
+
+{r}
+#vector of columns that are relevant for the model
+cols_to_keep = c(29, 31:33,36, 38:39, 41, 43, 45:48, 50, 53)
+
+#number of columns used in the model
+num_cols_kept = length(cols_to_keep)
+
+#subset of housing data that only has relevant columns
+relevant_data = housing_data %>% select(all_of(cols_to_keep))
+
+Dummify the garage_exists to be 1 for "yes" and 0 for NA
+
+{r}
+#Dummify garage 1 for yes, Yes, eys, UG, and Underground, 0 for NA
+relevant_data$garage_exists = ifelse(relevant_data$garage_exists == "Yes" | relevant_data$garage_exists == "yes" | relevant_data$garage_exists == "UG" | relevant_data$garage_exists == "1" | relevant_data$garage_exists == "eys" | relevant_data$garage_exists == "Underground", 1, 0)
+
+#set NA values to 0
+relevant_data$garage_exists = ifelse(is.na(relevant_data$garage_exists), 0, 1)
+
+Set NA values of num_half_bathrooms to 0
+
+{r}
+#set half bathrooms, NA to 0
+relevant_data$num_half_bathrooms = ifelse(is.na(relevant_data$num_half_bathrooms), 0, relevant_data$num_half_bathrooms)
+
+Cast the common_charges string to an integer, setting NA to 0
+
+{r}
+#turn common charge's NA values to 0
+relevant_data$common_charges = ifelse(is.na(relevant_data$common_charges), 0, relevant_data$common_charges)
+
+#remove dollar sign and comma
+relevant_data$common_charges = str_replace(relevant_data$common_charges, "\\$", "")
+relevant_data$common_charges = str_replace(relevant_data$common_charges, ",", "")
+
+#convert to numeric
+relevant_data$common_charges = as.numeric(relevant_data$common_charges)
+
+Cast the maintenance_cost string to an int, setting NA to 0
+
+{r}
+#set NA values to 0
+relevant_data$maintenance_cost = ifelse(is.na(relevant_data$maintenance_cost), 0, relevant_data$maintenance_cost)
+
+#remove dollar sign and comma
+relevant_data$maintenance_cost = str_replace(relevant_data$maintenance_cost, "\\$", "")
+relevant_data$maintenance_cost = str_replace(relevant_data$maintenance_cost, ",", "")
+
+#set to numeric
+relevant_data$maintenance_cost = as.numeric(relevant_data$maintenance_cost)
+
+Create a new column that is the sum of maintenance_cost and common_charges
+
+{r}
+#create new col that is total maintenance and common_charges
+relevant_data$total_com_maint = relevant_data$maintenance_cost + relevant_data$common_charges
+
+Manually add the missing approx_year_built data
+
+{r}
+#add missing "year built" data
+relevant_data[relevant_data$full_address_or_zip_code == "34-20 Parsons Blvd, Flushing NY, 11354", ]$approx_year_built = 1962
+
+relevant_data[relevant_data$full_address_or_zip_code == "34-41 78th Street, Jackson Heights, NY 11372", ]$approx_year_built = 1939
+
+relevant_data[relevant_data$full_address_or_zip_code == "92-31 57th Ave,  Elmhurst NY, 11373", ]$approx_year_built = 1965
+
+relevant_data[relevant_data$full_address_or_zip_code == "102-32 65th Ave,  Forest Hills NY, 11375", ]$approx_year_built = 1955
+
+relevant_data[relevant_data$full_address_or_zip_code == "170-06 Crocheron Ave,  Flushing NY, 11358", ]$approx_year_built = 1951
+
+relevant_data[relevant_data$full_address_or_zip_code == "74-63 220th Street,  Bayside NY, 11364", ]$approx_year_built = 2017
+
+Dummify co-op_condo to be 1 for co-op and 0 for condo
+
+{r}
+relevant_data$coop_condo = ifelse(relevant_data$coop_condo == "co-op", 1, 0)
+
+Dummify dogs_allowed to be 1 for "yes" and 0 for "no"
+
+{r}
+relevant_data$dogs_allowed = ifelse(relevant_data$dogs_allowed == "yes" | relevant_data$dogs_allowed == "yes89", 1, 0)
+
+Cast sale_price string to be an integer
+
+{r}
+#remove $ and ,
+relevant_data$sale_price = str_replace(relevant_data$sale_price, "\\$", "")
+relevant_data$sale_price = str_replace(relevant_data$sale_price, ",", "")
+
+#convert to numeric
+relevant_data$sale_price = as.numeric(relevant_data$sale_price)
+
+Dummify approx_year_built to 0 if built before 1978, 1 if built after 1978. (When lead paint was outlawed federally)
+
+{r}
+relevant_data$approx_year_built = ifelse(relevant_data$approx_year_built<1978, 0, 1)
+
+Further split the data set to include only the rows with a sale_price
+
+{r}
+#further subset to rows with sale prices
+non_NA_sale = relevant_data[!is.na(relevant_data$sale_price),]
+
+Extract zip codes from full_address_or_zip_code string
+
+{r}
+#extract zip codes from address string
+non_NA_sale$full_address_or_zip_code = str_sub(non_NA_sale$full_address_or_zip_code, start = -5)
+
+#handle exception
+non_NA_sale$full_address_or_zip_code[non_NA_sale$full_address_or_zip_code == "Share"] = "11354"
+
+#convert to numeric
+non_NA_sale$full_address_or_zip_code = as.numeric(non_NA_sale$full_address_or_zip_code)
+
+Categorize the zip codes into regions
+
+{r}
+Northeast = c(11361, 11362, 11363, 11364)
+North = c(11354, 11355, 11356, 11357, 11358, 11359, 11360)
+Central = c(11365, 11366, 11367)
+Jamaica = c(11412, 11423, 11432, 11433, 11434, 11435, 11436)
+Northwest = c(11101, 11102, 11103, 11104, 11105, 11106)
+West_Central = c(11374, 11375, 11379, 11385)
+Southeast = c(11004, 11005, 11411, 11413, 11422, 11426, 11427, 11428, 11429)
+Southwest = c(11414, 11415, 11416, 11417, 11418, 11419, 11420, 11421)
+West = c(11368, 11369, 11370, 11372, 11373, 11377, 11378)
+
+non_NA_sale$full_address_or_zip_code = case_when(
+  non_NA_sale$full_address_or_zip_code %in% Northeast ~ 1,
+  non_NA_sale$full_address_or_zip_code %in% North ~ 2,
+  non_NA_sale$full_address_or_zip_code %in% Central ~ 3,
+  non_NA_sale$full_address_or_zip_code %in% Jamaica ~ 4,
+  non_NA_sale$full_address_or_zip_code %in% West_Central ~ 5,
+  non_NA_sale$full_address_or_zip_code %in% Southeast ~ 6,
+  non_NA_sale$full_address_or_zip_code %in% Southwest ~ 7,
+  non_NA_sale$full_address_or_zip_code %in% West ~ 8,
+  non_NA_sale$full_address_or_zip_code %in% Northwest ~ 9)
+
+Dummify the zip code categorical variable
+
+{r}
+non_NA_sale = dummy_cols(non_NA_sale, select_columns = c("full_address_or_zip_code"), remove_first_dummy = TRUE, remove_selected_columns = TRUE)
+
+Filter out columns that will not be used in the final model
+
+{r}
+features_vec = c(1,4:6,8:11,13,14,15:23)
+select_data = non_NA_sale %>% select(all_of(features_vec))
+
+Randomly split the data into a training and testing split at an approx. 4:1 ratio respectively.
+
+{r}
+#randomly pick indices
+split_index = sample(nrow(select_data), size = nrow(select_data), replace = FALSE)
+
+#create subset of 80%
+splitting_point = split_index[1:round(0.8*nrow(select_data), 0)]
+
+#create training and testing sets
+train_data = select_data[splitting_point, ]
+test_data = select_data[-splitting_point, ]
+
+The Linear Model
+
+{r}
+#| output: true
+ols_model = lm(sale_price ~., data = train_data)
+stargazer(ols_model, type = "text")
+
+The Tree Model
+
+{r}
+#| output: true
+tree_model = YARF(X = train_data[,-9], y = as.vector(train_data $sale_price), num_trees = 1)
+tree_model
+
+Tune the random forest to find the best m_try parameter
+
+{r}
+#| output: true
+tuneRF(x = train_data[,-9], 
+       y = as.vector(train_data$sale_price),
+       stepFactor = 0.5,
+       ntreeTry=300,
+       trace=TRUE,
+       improve = 0.05,
+       plot = TRUE)
+
+The Random Forest Model
+
+{r}
+#| output: true
+yarf_model = YARF(X = train_data[,-9], y = as.vector(train_data $sale_price), mtry = 6)
+
+yarf_model
+
+{r}
+#| output: = TRUE
+
+#Test OLS model in-sample
+cat("OLS in-sample r_sq is ", summary(ols_model)$r.squared, " \n")
+cat("OLS in-sample RMSE is ", sqrt(mean(ols_model$residuals^2)))
+#Test OLS model oos
+ols_hat = predict(ols_model, test_data[,-9])
+cat("\nOLS out-of-sample r_sq is ", cor(ols_hat, test_data$sale_price)^2, " \n")
+cat("OLS out-of-sample RMSE is ", sqrt(mean((test_data$sale_price - ols_hat)^2)), " \n")
+#Test tree model oos
+tree_hat = predict(tree_model, test_data[,-9])
+cat("tree out-of-sample r_sq is ", cor(tree_hat, test_data$sale_price)^2, " \n")
+cat("tree out-of-sample RMSE is ", sqrt(mean((test_data$sale_price - tree_hat)^2)), " \n")
+#Test yarf model oos
+forest_hat = predict(yarf_model, test_data[,-9])
+cat("Forest out-of-sample r_sq is ", cor(forest_hat, test_data$sale_price)^2, " \n")
+cat("Forest out-of-sample RMSE is ", sqrt(mean((test_data$sale_price - forest_hat)^2)), " \n")
+
